@@ -29,6 +29,7 @@ ext {
 }
 
 dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
     implementation 'org.springframework.boot:spring-boot-starter-pulsar-reactive'
     implementation 'com.vaadin:vaadin-spring-boot-starter'
     compileOnly 'org.projectlombok:lombok'
