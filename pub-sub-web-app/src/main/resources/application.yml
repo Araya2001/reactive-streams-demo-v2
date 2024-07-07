@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: pub-sub-web-app
+  pulsar:
+    client:
+      # This client service url uses de "broker" domain name from docker network
+      service-url: pulsar://broker:6650
