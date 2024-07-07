@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: pulsar-administrator
+  pulsar:
+    client:
+      # This client service url uses de "broker" domain name from docker network
+      service-url: pulsar://broker:6650
+    admin:
+      # This admin service url uses de "broker" domain name from docker network
+      service-url: http://broker:8080
