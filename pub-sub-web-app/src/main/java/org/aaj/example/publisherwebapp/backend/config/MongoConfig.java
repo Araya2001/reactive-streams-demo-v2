@@ -1,4 +1,4 @@
-/* package org.aaj.example.publisherwebapp.backend.config;
+package org.aaj.example.publisherwebapp.backend.config;
 
 
 import com.mongodb.ConnectionString;
@@ -33,4 +33,4 @@ public class MongoConfig {
         return MongoClients.create(mongoClientSettings);
     }
 }
-*/
+
