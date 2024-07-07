@@ -1,6 +1,5 @@
 package org.aaj.example.messagepreparer.service;
 
-import lombok.extern.log4j.Log4j2;
 import org.aaj.example.messagepreparer.dto.UnprocessedTopicEventDTO;
 import org.apache.pulsar.client.api.Message;
 import org.apache.pulsar.common.schema.SchemaType;
@@ -12,7 +11,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
 @Service
-@Log4j2
 public class UnprocessedEventTopicConsumerService implements TopicConsumerService<UnprocessedTopicEventDTO> {
 
     private final ProcessedTopicEventPreparerService processedTopicEventPreparerService;
@@ -30,21 +28,20 @@ public class UnprocessedEventTopicConsumerService implements TopicConsumerServic
             subscriptionName = "unprocessed-event-topic-subscription",
             stream = true,
             topics = "unprocessed-event-topic"
-
     )
-    public Flux<MessageResult<Void>> consume(Flux<Message<UnprocessedTopicEventDTO>> batchOfEvents) {
+    public Flux<MessageResult<Void>> consume(Flux<Message<UnprocessedTopicEventDTO>> eventFlux) {
 
         // Create Sink to store none used message events; this will serve for the acknowledgement needed by the pulsar broker
-        Sinks.Many<Message<UnprocessedTopicEventDTO>> batchOfEventsSink = Sinks.many().multicast().onBackpressureBuffer();
+        Sinks.Many<Message<UnprocessedTopicEventDTO>> eventSink = Sinks.many().multicast().onBackpressureBuffer();
 
         // The usage of the "var" keyword will increase build time, however, I do recommend including the "var" keyword when using
         // project reactor "Mono" and "Flux"
 
-        // This will emit unprocessed events to batchOfEventsSink And will extract the value from the "raw" event that comes from pulsar
-        var unpreparedTopicEvents = batchOfEvents
+        // This will emit unprocessed events to eventSink And will extract the value from the "raw" event that comes from pulsar
+        var unpreparedTopicEvents = eventFlux
                 .doOnNext(
                         unprocessedTopicEventDTOMessage ->
-                                batchOfEventsSink.tryEmitNext(unprocessedTopicEventDTOMessage).orThrow()
+                                eventSink.tryEmitNext(unprocessedTopicEventDTOMessage).orThrow()
                 )
                 .map(Message::getValue);
 
@@ -54,9 +51,9 @@ public class UnprocessedEventTopicConsumerService implements TopicConsumerServic
         // This will publish the events into the next topic
         var publishedEvents = processedEventTopicPublisherService.publish(preparedTopicEvents);
 
-        // On subscription, the published events are going to be ignored, and will pass on to the batchOfEventsSink to publish the
+        // On subscription, the published events are going to be ignored, and will pass on to the eventSink to publish the
         // acknowledgements for the broker to mark the messages as acknowledged
-        return publishedEvents.thenMany(batchOfEventsSink.asFlux().map(MessageResult::acknowledge));
+        return publishedEvents.thenMany(eventSink.asFlux().map(MessageResult::acknowledge));
     }
 
 }

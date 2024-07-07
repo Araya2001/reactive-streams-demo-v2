@@ -5,5 +5,5 @@ import org.apache.pulsar.reactive.client.api.MessageSendResult;
 import reactor.core.publisher.Flux;
 
 public interface TopicPublisherService<EventToBeSent> {
-    Flux<MessageSendResult<EventToBeSent>> publish(Flux<EventToBeSent> streamPreparingEventDTOFlux);
+    Flux<MessageSendResult<EventToBeSent>> publish(Flux<EventToBeSent> eventToBeSentFlux);
 }

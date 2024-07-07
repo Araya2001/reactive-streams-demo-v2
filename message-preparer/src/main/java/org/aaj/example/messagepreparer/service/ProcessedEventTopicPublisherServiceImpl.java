@@ -23,9 +23,9 @@ public class ProcessedEventTopicPublisherServiceImpl implements ProcessedEventTo
     }
 
     @Override
-    public Flux<MessageSendResult<ProcessedTopicEventDTO>> publish(Flux<ProcessedTopicEventDTO> streamPreparingEventDTOFlux) {
+    public Flux<MessageSendResult<ProcessedTopicEventDTO>> publish(Flux<ProcessedTopicEventDTO> eventToBeSentFlux) {
         return reactivePulsarTemplate
-                .send(TOPIC_NAME, streamPreparingEventDTOFlux.map(MessageSpec::of))
+                .send(TOPIC_NAME, eventToBeSentFlux.map(MessageSpec::of))
                 .onErrorResume(throwable -> {
                     log.error(throwable);
                     return Flux.just();
