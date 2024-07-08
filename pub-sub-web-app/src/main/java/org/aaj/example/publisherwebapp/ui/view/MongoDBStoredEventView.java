@@ -13,6 +13,7 @@ public class MongoDBStoredEventView extends VerticalLayout {
     @Autowired
     public MongoDBStoredEventView(ProcessedTopicEventDocumentService processedTopicEventDocumentService) {
         ProcessedTopicEventDocumentGrid processedTopicEventDocumentGrid = new ProcessedTopicEventDocumentGrid(processedTopicEventDocumentService);
+        processedTopicEventDocumentGrid.setSizeFull();
         add(processedTopicEventDocumentGrid);
     }
 }

@@ -25,13 +25,15 @@ public class MainAppLayout extends AppLayout {
         eventNotifierService
                 .getPublisher()
                 .subscribe(
-                        event -> {
-                            Notification notification =
-                                    Notification.show("New notification received: " + event);
-                            notification.setPosition(Notification.Position.TOP_CENTER);
-                            notification.setDuration(1500);
-                        }
-                        );
+                        event -> getUI().ifPresent(ui -> ui.access(
+                                () -> {
+                                    Notification notification =
+                                            Notification.show("New notification received: " + event);
+                                    notification.setPosition(Notification.Position.TOP_CENTER);
+                                    notification.setDuration(1500);
+                                }
+                        ))
+                );
         createHeader();
     }
 

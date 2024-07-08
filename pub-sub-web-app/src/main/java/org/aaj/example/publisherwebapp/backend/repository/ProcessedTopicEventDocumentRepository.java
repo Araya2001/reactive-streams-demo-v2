@@ -1,7 +1,6 @@
 package org.aaj.example.publisherwebapp.backend.repository;
 
 
-
 import org.aaj.example.publisherwebapp.backend.model.ProcessedTopicEventDocument;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.stereotype.Repository;

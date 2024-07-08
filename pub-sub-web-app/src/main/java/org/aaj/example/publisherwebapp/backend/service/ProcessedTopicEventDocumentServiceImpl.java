@@ -1,7 +1,6 @@
 package org.aaj.example.publisherwebapp.backend.service;
 
 import lombok.extern.log4j.Log4j2;
-
 import org.aaj.example.publisherwebapp.backend.model.ProcessedTopicEventDocument;
 import org.aaj.example.publisherwebapp.backend.repository.ProcessedTopicEventDocumentRepository;
 import org.springframework.stereotype.Service;

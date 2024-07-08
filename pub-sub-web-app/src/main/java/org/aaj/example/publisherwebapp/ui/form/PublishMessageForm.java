@@ -5,14 +5,12 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.messages.MessageList;
 import com.vaadin.flow.component.messages.MessageListItem;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
@@ -20,14 +18,12 @@ import org.aaj.example.publisherwebapp.backend.dto.UnprocessedTopicEventDTO;
 import org.aaj.example.publisherwebapp.backend.service.UnprocessedEventTopicPublisherService;
 import reactor.core.publisher.Sinks;
 
-import javax.swing.text.html.parser.ContentModel;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
 @Route("publish-message-form")
 public class PublishMessageForm extends FormLayout {
-
 
 
     public PublishMessageForm(UnprocessedEventTopicPublisherService unprocessedEventTopicPublisherService) {
@@ -56,7 +52,7 @@ public class PublishMessageForm extends FormLayout {
 
 
         // This is for multiple message publishing section
-        VerticalLayout messagePublishingLayout = new VerticalLayout(messageList,sendMessagesButton);
+        VerticalLayout messagePublishingLayout = new VerticalLayout(messageList, sendMessagesButton);
 
         // This is the runnable action for adding a visual item as pending messages to emit events to the sink
         Runnable mapTextFieldToUnprocessedTopicEventDTO = () -> {
@@ -84,12 +80,14 @@ public class PublishMessageForm extends FormLayout {
         Runnable publishMessagesInSinkToUnprocessedEventTopic = () -> {
             unprocessedEventTopicPublisherService
                     .publish(unprocessedEventSink.asFlux())
-                    .subscribe(sendResult -> {
-                        Notification notification =
-                                Notification.show("Published message " + sendResult.getMessageId() +" successfully!");
-                        notification.setPosition(Notification.Position.MIDDLE);
-                        notification.setDuration(1);
-                    });
+                    .subscribe(sendResult -> getUI().ifPresent(ui -> ui.access(
+                            () -> {
+                                Notification notification =
+                                        Notification.show("Published message " + sendResult.getMessageId() + " successfully!");
+                                notification.setPosition(Notification.Position.MIDDLE);
+                                notification.setDuration(1500);
+                            }
+                    )));
 
             // Clear items list
             messageListItems.clear();
@@ -100,7 +98,7 @@ public class PublishMessageForm extends FormLayout {
         addClickEventListener(sendMessagesButton, publishMessagesInSinkToUnprocessedEventTopic);
 
         Html hr = new Html("<hr/>");
-        hr.getStyle().set("height","2px");
+        hr.getStyle().set("height", "2px");
 
         VerticalLayout allMessagesLayout = new VerticalLayout(
                 createMessageLayout,
@@ -117,7 +115,7 @@ public class PublishMessageForm extends FormLayout {
         button.addClickListener(event -> runnable.run());
     }
 
-    private MessageListItem createListMessageItem(String body, Instant timestamp){
+    private MessageListItem createListMessageItem(String body, Instant timestamp) {
         return new MessageListItem(body, timestamp, "User Defined Message");
     }
 }

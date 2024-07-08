@@ -20,6 +20,6 @@ public class ProcessedTopicEventToDocumentMapperServiceImpl implements Processed
                                 .processedTopicEvent(processedTopicEventDTO)
                                 .dateCreated(Instant.now())
                                 .build()
-                        );
+                );
     }
 }

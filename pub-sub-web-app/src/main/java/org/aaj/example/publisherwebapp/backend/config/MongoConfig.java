@@ -6,6 +6,7 @@ import com.mongodb.MongoClientSettings;
 import com.mongodb.connection.SocketSettings;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
+import org.bson.UuidRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,11 +18,13 @@ public class MongoConfig {
     @Value("${MONGODB_CONNECTION_STRING}")
     private String mongoDBConnectionString;
 
+    // This piece of code is not production ready, SSL must be enforced
     @Bean
     public MongoClient mongoClient() {
         ConnectionString connectionString = new ConnectionString(mongoDBConnectionString);
         MongoClientSettings mongoClientSettings = MongoClientSettings.builder()
-                .applyToSslSettings(builder -> builder.enabled(true).invalidHostNameAllowed(true))
+                .uuidRepresentation(UuidRepresentation.STANDARD)
+                .applyToSslSettings(builder -> builder.enabled(false).invalidHostNameAllowed(true))
                 .applyToConnectionPoolSettings(builder -> builder.minSize(5).maxSize(20).maxWaitTime(5, TimeUnit.MINUTES))
                 .applyToSocketSettings(builder -> builder
                         .applySettings(SocketSettings.builder()

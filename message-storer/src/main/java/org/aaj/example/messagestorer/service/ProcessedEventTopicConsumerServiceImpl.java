@@ -43,8 +43,8 @@ public class ProcessedEventTopicConsumerServiceImpl implements ProcessedEventTop
         var extractedEventsFromMessageFlux = eventFlux
                 .doOnNext(
                         processedTopicEventDTOMessage ->
-                        eventSink.tryEmitNext(processedTopicEventDTOMessage).orThrow()
-                        )
+                                eventSink.tryEmitNext(processedTopicEventDTOMessage).orThrow()
+                )
                 .map(Message::getValue);
 
         // This will convert the message payload to MongoDB Document Objects

@@ -18,4 +18,10 @@ public class PulsarConfiguration {
         return PulsarTopic.builder("processed-event-topic").build();
     }
 
+    @Bean
+    PulsarTopic notifyStoredEventTopic() {
+        // This will create a topic named "processed-event-topic" on the public namespace
+        return PulsarTopic.builder("notify-stored-event-topic").build();
+    }
+
 }

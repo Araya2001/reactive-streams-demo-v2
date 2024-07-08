@@ -13,7 +13,7 @@ import reactor.core.publisher.Flux;
 public class NotifyStoredEventTopicPublisherServiceImpl implements NotifyStoredEventTopicPublisherService {
 
     private final ReactivePulsarTemplate<String> reactivePulsarTemplate;
-    private static final String TOPIC_NAME = "processed-event-topic";
+    private static final String TOPIC_NAME = "notify-stored-event-topic";
 
     @Autowired
     public NotifyStoredEventTopicPublisherServiceImpl(ReactivePulsarTemplate<String> reactivePulsarTemplate) {

@@ -1,15 +1,15 @@
 version: '3'
 networks:
-  pulsar:
+  reactive-streams-net:
     driver: bridge
 services:
-  # Start zookeeper
+  # ------ Start zookeeper ------
   zookeeper:
     image: apachepulsar/pulsar:latest
     container_name: zookeeper
     restart: on-failure
     networks:
-      - pulsar
+      - reactive-streams-net
     volumes:
       - ./data/zookeeper:/pulsar/data/zookeeper
     environment:
@@ -20,18 +20,18 @@ services:
              bin/generate-zookeeper-config.sh conf/zookeeper.conf && \
              exec bin/pulsar zookeeper"
     healthcheck:
-      test: ["CMD", "bin/pulsar-zookeeper-ruok.sh"]
+      test: [ "CMD", "bin/pulsar-zookeeper-ruok.sh" ]
       interval: 10s
       timeout: 5s
       retries: 30
 
-  # Init cluster metadata
+  # ------ Init cluster metadata ------
   pulsar-init:
     container_name: pulsar-init
     hostname: pulsar-init
     image: apachepulsar/pulsar:latest
     networks:
-      - pulsar
+      - reactive-streams-net
     command: >
       bin/pulsar initialize-cluster-metadata \
                --cluster cluster-a \
@@ -43,13 +43,13 @@ services:
       zookeeper:
         condition: service_healthy
 
-  # Start bookie
+  # ------ Start bookie ------
   bookie:
     image: apachepulsar/pulsar:latest
     container_name: bookie
     restart: on-failure
     networks:
-      - pulsar
+      - reactive-streams-net
     environment:
       - clusterName=cluster-a
       - zkServers=zookeeper:2181
@@ -68,14 +68,14 @@ services:
       - ./data/bookkeeper:/pulsar/data/bookkeeper
     command: bash -c "bin/apply-config-from-env.py conf/bookkeeper.conf && exec bin/pulsar bookie"
 
-  # Start broker
+  # ------ Start broker ------
   broker:
     image: apachepulsar/pulsar:latest
     container_name: broker
     hostname: broker
     restart: on-failure
     networks:
-      - pulsar
+      - reactive-streams-net
     environment:
       - metadataStoreUrl=zk:zookeeper:2181
       - zookeeperServers=zookeeper:2181
@@ -84,7 +84,7 @@ services:
       - managedLedgerDefaultWriteQuorum=1
       - managedLedgerDefaultAckQuorum=1
       - advertisedAddress=broker
-      - advertisedListeners=external:pulsar://127.0.0.1:6650
+      - advertisedListeners=external:pulsar://broker:6650 # IF THE APPLICATION CONSUMING PULSAR IS OUTSIDE DOCKER, IT SHOULD BE 127.0.0.1
       - PULSAR_MEM=-Xms512m -Xmx512m -XX:MaxDirectMemorySize=256m
     depends_on:
       zookeeper:
@@ -95,3 +95,78 @@ services:
       - "6650:6650"
       - "8080:8080"
     command: bash -c "bin/apply-config-from-env.py conf/broker.conf && exec bin/pulsar broker"
+
+  # ------ MongoDB ------
+  mongodb:
+    container_name: mongodb
+    hostname: mongodb
+    image: mongo
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=MyUser
+      - MONGO_INITDB_ROOT_PASSWORD=MyCredential
+    networks:
+      - reactive-streams-net
+    ports:
+      - "27017:27017"
+
+  # ------ Spring Services ------
+
+  # ------ Topic Starter ------
+  topic-starter:
+    container_name: spring-pulsar-topic-starter
+    build:
+      context: pulsar-administrator
+      dockerfile: Dockerfile
+    networks:
+      - reactive-streams-net
+    depends_on:
+      broker:
+        condition: service_started
+
+  # ------ Message Preparer ------
+  message-preparer:
+    container_name: message-preparer-service
+    build:
+      context: message-preparer
+      dockerfile: Dockerfile
+    networks:
+      - reactive-streams-net
+    ports:
+      - "8081:8081"
+    depends_on:
+      topic-starter:
+        condition: service_started
+
+  # ------ Message Storer ------
+  message-storer:
+    container_name: message-storer-service
+    build:
+      context: message-storer
+      dockerfile: Dockerfile
+    environment:
+      - MONGODB_CONNECTION_STRING=mongodb://MyUser:MyCredential@mongodb:27017/reactive_events_v2?authSource=admin
+    networks:
+      - reactive-streams-net
+    ports:
+      - "8082:8082"
+    depends_on:
+      topic-starter:
+        condition: service_started
+      mongodb:
+        condition: service_started
+
+  # ------ PubSub WebApp ------
+  pub-sub-web-app:
+    container_name: pub-sub-web-application
+    build:
+      context: pub-sub-web-app
+      dockerfile: Dockerfile
+    environment:
+      - MONGODB_CONNECTION_STRING=mongodb://MyUser:MyCredential@mongodb:27017/reactive_events_v2?authSource=admin
+    networks:
+      - reactive-streams-net
+    ports:
+      - "8083:8083"
+    depends_on:
+      topic-starter:
+        condition: service_started      
