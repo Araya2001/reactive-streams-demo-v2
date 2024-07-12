@@ -2,11 +2,9 @@ package org.aaj.example.publisherwebapp.backend.service;
 
 import lombok.extern.log4j.Log4j2;
 import org.aaj.example.publisherwebapp.backend.dto.UnprocessedTopicEventDTO;
-import org.apache.pulsar.common.schema.SchemaType;
 import org.apache.pulsar.reactive.client.api.MessageSendResult;
 import org.apache.pulsar.reactive.client.api.MessageSpec;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.pulsar.reactive.config.annotation.ReactivePulsarListener;
 import org.springframework.pulsar.reactive.core.ReactivePulsarTemplate;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;

@@ -29,12 +29,12 @@ public class NotifyStoredEventTopicConsumerServiceImpl implements NotifyStoredEv
     public Flux<MessageResult<Void>> consume(Flux<Message<String>> eventFlux) {
         // Sink for Acknowledgement of messages
         Sinks.Many<Message<String>> eventSink = Sinks.many().multicast().onBackpressureBuffer();
-        
+
         // This will extract the messages from the topic event message wrapper
-        var extractedEvents =  eventFlux
+        var extractedEvents = eventFlux
                 .doOnNext(
-                        stringMessage ->
-                                eventSink.tryEmitNext(stringMessage).orThrow()
+                        eventMessage ->
+                                eventSink.tryEmitNext(eventMessage).orThrow()
                 )
                 .map(Message::getValue);
 
