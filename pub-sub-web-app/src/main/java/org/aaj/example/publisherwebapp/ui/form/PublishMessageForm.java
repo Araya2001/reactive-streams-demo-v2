@@ -77,7 +77,7 @@ public class PublishMessageForm extends FormLayout {
             messageBody.setValue("");
         });
 
-        // This action is for adding a visual item as pending messages to emit events to the sink
+        // This action is for sending events to the publisher as a flux from the unprocessedEventList stream
         sendMessagesButton.addClickListener(buttonClickEvent -> {
             unprocessedEventTopicPublisherService
                     .publish(Flux.fromStream(unprocessedEventList.stream()))
