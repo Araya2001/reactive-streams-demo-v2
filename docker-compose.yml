@@ -95,6 +95,11 @@ services:
       - "6650:6650"
       - "8080:8080"
     command: bash -c "bin/apply-config-from-env.py conf/broker.conf && exec bin/pulsar broker"
+    healthcheck:
+      test: [ "CMD-SHELL", "echo test" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # ------ MongoDB ------
   mongodb:
@@ -108,7 +113,11 @@ services:
       - reactive-streams-net
     ports:
       - "27017:27017"
-
+    healthcheck:
+      test: ["CMD-SHELL", "echo test"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   # ------ Spring Services ------
 
   # ------ Topic Starter ------
@@ -119,9 +128,15 @@ services:
       dockerfile: Dockerfile
     networks:
       - reactive-streams-net
+    healthcheck:
+      test: [ "CMD-SHELL", "echo test" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     depends_on:
       broker:
-        condition: service_started
+        condition: service_healthy
+
 
   # ------ Message Preparer ------
   message-preparer:
@@ -135,7 +150,7 @@ services:
       - "8081:8081"
     depends_on:
       topic-starter:
-        condition: service_started
+        condition: service_healthy
 
   # ------ Message Storer ------
   message-storer:
@@ -151,9 +166,9 @@ services:
       - "8082:8082"
     depends_on:
       topic-starter:
-        condition: service_started
+        condition: service_healthy
       mongodb:
-        condition: service_started
+        condition: service_healthy
 
   # ------ PubSub WebApp ------
   pub-sub-web-app:
@@ -169,4 +184,4 @@ services:
       - "8083:8083"
     depends_on:
       topic-starter:
-        condition: service_started      
+        condition: service_healthy
