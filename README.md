@@ -71,7 +71,7 @@ public interface CustomTopicSubscriberService extends TopicSubscriberService<Str
 @Service
 public class CustomTopicSubscriberServiceImpl implements CustomTopicSubscriberService {
 
-    // This is a 
+    // This is a placeholder for a publishing service
     private final PublisherService publisherService;
 
     @Autowired
