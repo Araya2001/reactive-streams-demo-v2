@@ -54,7 +54,7 @@ public class PublishMessageForm extends FormLayout {
         // This is for multiple message publishing section
         VerticalLayout messagePublishingLayout = new VerticalLayout(messageList, sendMessagesButton);
 
-        // This action is for adding a visual item as pending messages to emit events to the sink
+        // This action is for adding a visual item as pending messages to add events to the unprocessedEventList
         createMessageButton.addClickListener(buttonClickEvent -> {
 
             // Create unprocessedTopicEvent DTO
@@ -98,6 +98,8 @@ public class PublishMessageForm extends FormLayout {
             unprocessedEventList.clear();
         });
 
+
+        // Styling Purposes
         Html hr = new Html("<hr/>");
         hr.getStyle().set("height", "2px");
 
