@@ -11,14 +11,14 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
 @Service
-public class ProcessedEventTopicConsumerServiceImpl implements ProcessedEventTopicConsumerService {
+public class ProcessedEventTopicSubscriberServiceImpl implements ProcessedEventTopicSubscriberService {
 
     private final ProcessedTopicEventDocumentService documentService;
     private final ProcessedTopicEventToDocumentMapperService toDocumentMapper;
     private final NotifyStoredEventTopicPublisherService notifyStoredEventTopicPublisherService;
 
     @Autowired
-    public ProcessedEventTopicConsumerServiceImpl(ProcessedTopicEventDocumentService documentService, ProcessedTopicEventToDocumentMapperService toDocumentMapper, NotifyStoredEventTopicPublisherService notifyStoredEventTopicPublisherService) {
+    public ProcessedEventTopicSubscriberServiceImpl(ProcessedTopicEventDocumentService documentService, ProcessedTopicEventToDocumentMapperService toDocumentMapper, NotifyStoredEventTopicPublisherService notifyStoredEventTopicPublisherService) {
         this.documentService = documentService;
         this.toDocumentMapper = toDocumentMapper;
         this.notifyStoredEventTopicPublisherService = notifyStoredEventTopicPublisherService;
@@ -31,7 +31,7 @@ public class ProcessedEventTopicConsumerServiceImpl implements ProcessedEventTop
             stream = true,
             topics = "processed-event-topic"
     )
-    public Flux<MessageResult<Void>> consume(Flux<Message<ProcessedTopicEventDTO>> eventFlux) {
+    public Flux<MessageResult<Void>> subscribe(Flux<Message<ProcessedTopicEventDTO>> eventFlux) {
 
         // Create Sink to store none used message events; this will serve for the acknowledgement needed by the pulsar broker
         Sinks.Many<Message<ProcessedTopicEventDTO>> eventSink = Sinks.many().multicast().onBackpressureBuffer();

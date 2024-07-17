@@ -10,12 +10,12 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
 @Service
-public class NotifyStoredEventTopicConsumerServiceImpl implements NotifyStoredEventTopicConsumerService {
+public class NotifyStoredEventTopicSubscriberServiceImpl implements NotifyStoredEventTopicSubscriberService {
 
     private final StoredEventTopicEventNotifierService eventNotifierService;
 
     @Autowired
-    public NotifyStoredEventTopicConsumerServiceImpl(StoredEventTopicEventNotifierService eventNotifierService) {
+    public NotifyStoredEventTopicSubscriberServiceImpl(StoredEventTopicEventNotifierService eventNotifierService) {
         this.eventNotifierService = eventNotifierService;
     }
 
@@ -26,7 +26,7 @@ public class NotifyStoredEventTopicConsumerServiceImpl implements NotifyStoredEv
             stream = true,
             topics = "notify-stored-event-topic"
     )
-    public Flux<MessageResult<Void>> consume(Flux<Message<String>> eventFlux) {
+    public Flux<MessageResult<Void>> subscribe(Flux<Message<String>> eventFlux) {
         // Sink for Acknowledgement of messages
         Sinks.Many<Message<String>> eventSink = Sinks.many().multicast().onBackpressureBuffer();
 
