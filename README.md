@@ -106,7 +106,6 @@ public class CustomTopicSubscriberServiceImpl implements CustomTopicSubscriberSe
         return publishedEventsFromNotifyStoredEventTopic.thenMany(eventSink.asFlux().map(MessageResult::acknowledge));
     }
 }
-
 ```
 
 > You might be able to follow a better example of this code in `pub-sub-web-app`
@@ -149,13 +148,44 @@ public class CustomTopicPublisherServiceImpl implements CustomTopicPublisherServ
                 });
     }
 }
-
-
 ```
 
 > You might be able to follow a better example of this code in `message-storer`
 > at `/src/main/java/org/aaj/example/messagestorer/service/NotifyStoredEventTopicPublisherServiceImpl.java`
 
+### Topic Creation
+
+Create the following `@Configuration` annotated class to create topics
+
+```java
+// PulsarConfiguration.java
+@Configuration
+public class PulsarConfiguration {
+
+    @Bean
+    PulsarTopic customTopic() {
+        // This will create a topic named "custom-topic" on the public namespace
+        return PulsarTopic.builder("custom-topic").build();
+    }
+
+}
+```
+
+> You might be able to follow a better example of this code in `pulsar-administrator`
+> at `/src/main/java/org/aaj/example/pulsaradministrator/config/PulsarConfiguration.java`
+
+---
+
+## Use Case & Intended Purpose
+
+Which teams are the target for this type of solution?
+
+Teams that:
+* require bulk actions but synchronous processes are time-consuming and resource expensive.
+* require communication between scalable applications.
+* require real-time processing.
+* would like to provide a seamless and blazing-fast experience to their customers.
+* would like to use Pub/Sub architecture with open-source technology.
 ---
 
 ## Annexes
