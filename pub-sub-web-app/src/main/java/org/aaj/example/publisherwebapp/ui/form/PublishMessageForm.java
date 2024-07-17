@@ -16,6 +16,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import org.aaj.example.publisherwebapp.backend.dto.UnprocessedTopicEventDTO;
 import org.aaj.example.publisherwebapp.backend.service.UnprocessedEventTopicPublisherService;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
 import java.time.Instant;
@@ -28,8 +29,8 @@ public class PublishMessageForm extends FormLayout {
 
     public PublishMessageForm(UnprocessedEventTopicPublisherService unprocessedEventTopicPublisherService) {
 
-        // Sink Definition
-        Sinks.Many<UnprocessedTopicEventDTO> unprocessedEventSink = Sinks.many().multicast().onBackpressureBuffer();
+        // Unprocessed Topic Event List Definition
+        List<UnprocessedTopicEventDTO> unprocessedEventList = new ArrayList<>();
 
         // Message List Items
         List<MessageListItem> messageListItems = new ArrayList<>();
@@ -44,7 +45,6 @@ public class PublishMessageForm extends FormLayout {
         createMessageButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         sendMessagesButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
-
         // This is for the message creation section
         // Wrap the "create message" button in a div to prevent the button from stretching to full-width
         VerticalLayout createMessageLayout = new VerticalLayout(messageBody, new Div(createMessageButton));
@@ -54,8 +54,9 @@ public class PublishMessageForm extends FormLayout {
         // This is for multiple message publishing section
         VerticalLayout messagePublishingLayout = new VerticalLayout(messageList, sendMessagesButton);
 
-        // This is the runnable action for adding a visual item as pending messages to emit events to the sink
-        Runnable mapTextFieldToUnprocessedTopicEventDTO = () -> {
+        // This action is for adding a visual item as pending messages to emit events to the sink
+        createMessageButton.addClickListener(buttonClickEvent -> {
+
             // Create unprocessedTopicEvent DTO
             UnprocessedTopicEventDTO unprocessedTopicEventDTO = UnprocessedTopicEventDTO
                     .builder()
@@ -69,17 +70,17 @@ public class PublishMessageForm extends FormLayout {
             // Set items to messageList components
             messageList.setItems(messageListItems);
 
-            // Emit the unprocessed Event to the sink
-            unprocessedEventSink.tryEmitNext(unprocessedTopicEventDTO);
+            // Add the unprocessed Event to the List
+            unprocessedEventList.add(unprocessedTopicEventDTO);
 
             // Clear Text Field of the message
             messageBody.setValue("");
-        };
+        });
 
-        // This is the runnable action for adding a visual item as pending messages to emit events to the sink
-        Runnable publishMessagesInSinkToUnprocessedEventTopic = () -> {
+        // This action is for adding a visual item as pending messages to emit events to the sink
+        sendMessagesButton.addClickListener(buttonClickEvent -> {
             unprocessedEventTopicPublisherService
-                    .publish(unprocessedEventSink.asFlux())
+                    .publish(Flux.fromStream(unprocessedEventList.stream()))
                     .subscribe(sendResult -> getUI().ifPresent(ui -> ui.access(
                             () -> {
                                 Notification notification =
@@ -92,10 +93,10 @@ public class PublishMessageForm extends FormLayout {
             // Clear items list
             messageListItems.clear();
             messageList.setItems(messageListItems);
-        };
 
-        addClickEventListener(createMessageButton, mapTextFieldToUnprocessedTopicEventDTO);
-        addClickEventListener(sendMessagesButton, publishMessagesInSinkToUnprocessedEventTopic);
+            // Clear list to prevent emitting old messages from the list
+            unprocessedEventList.clear();
+        });
 
         Html hr = new Html("<hr/>");
         hr.getStyle().set("height", "2px");
@@ -111,11 +112,10 @@ public class PublishMessageForm extends FormLayout {
 
     }
 
-    private void addClickEventListener(Button button, Runnable runnable) {
-        button.addClickListener(event -> runnable.run());
-    }
-
     private MessageListItem createListMessageItem(String body, Instant timestamp) {
         return new MessageListItem(body, timestamp, "User Defined Message");
     }
+
+
+
 }
