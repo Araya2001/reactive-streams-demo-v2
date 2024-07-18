@@ -32,7 +32,7 @@ Please note that for complete details on the specific implementation, it's recom
 original creators of the project.
 
 > To see more about how this solution works, please check
-> the [annex section](https://github.com/Araya2001/reactive-streams-demo-v2?tab=readme-ov-file#annex)
+> the [annex/diagram section](#diagram)
 
 ### Benefits of Event-Driven Architecture
 
